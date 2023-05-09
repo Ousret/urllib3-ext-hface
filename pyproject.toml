@@ -1,3 +1,99 @@
 [build-system]
-requires = ["setuptools>=40.6.0", "wheel"]
-build-backend = "setuptools.build_meta"
+requires = ["hatchling>=1.6.0,<2"]
+build-backend = "hatchling.build"
+
+[project]
+name = "urllib3-ext-hface"
+description = "urllib3 extension to support HTTP/1.1, HTTP/2 and HTTP/3 independently of Python httplib"
+readme = {file = ["README.rst", "CHANGELOG.rst"], content-type = "text/x-rst"}
+license = {text = "Apache-2.0"}
+keywords = ["urllib3", "quic", "h2", "extension", "h3", "h11"]
+authors = [
+  {name = "Miloslav Pojman", email = "mpojman@akamai.com"},
+]
+maintainers = [
+  {name = "Ahmed R. TAHRI", email="ahmed.tahri@cloudnursery.dev"},
+]
+classifiers = [
+  "Environment :: Web Environment",
+  "Development Status :: 4 - Beta",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: Apache Software License",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.7",
+  "Programming Language :: Python :: 3.8",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: Implementation :: CPython",
+  "Programming Language :: Python :: Implementation :: PyPy",
+  "Topic :: Internet :: WWW/HTTP",
+  "Topic :: Software Development :: Libraries",
+  "Typing :: Typed",
+]
+requires-python = ">=3.7"
+dynamic = ["version"]
+dependencies = [
+  "aioquic>=0.9.20,<1.0.0",
+  "h11>=0.11.0,<1.0.0",
+  "h2>=4.0.0,<5.0.0",
+]
+
+[project.urls]
+"Changelog" = "https://github.com/Ousret/urllib3-ext-hface/blob/main/CHANGELOG.rst"
+"Documentation" = "https://urllib3.readthedocs.io"
+"Code" = "https://github.com/Ousret/urllib3-ext-hface"
+"Issue tracker" = "https://github.com/Ousret/urllib3-ext-hface/issues"
+
+[tool.hatch.version]
+path = "src/urllib3_ext_hface/_version.py"
+
+[tool.hatch.build.targets.sdist]
+include = [
+  "/docs",
+  "/src",
+  "/tests",
+  "/dev-requirements.txt",
+  "/CHANGELOG.rst",
+  "/README.rst",
+  "/LICENSE",
+  "/NOTICE",
+  "/AUTHORS",
+]
+
+[tool.pytest.ini_options]
+xfail_strict = true
+log_level = "DEBUG"
+addopts = "--cov=urllib3_ext_hface --cov-report=term-missing -rxXs"
+
+[tool.isort]
+profile = "black"
+add_imports = "from __future__ import annotations"
+
+[tool.mypy]
+mypy_path = "src"
+check_untyped_defs = true
+disallow_any_generics = true
+disallow_incomplete_defs = true
+disallow_subclassing_any = true
+disallow_untyped_calls = true
+disallow_untyped_decorators = true
+disallow_untyped_defs = true
+no_implicit_optional = true
+no_implicit_reexport = true
+show_error_codes = true
+strict_equality = true
+warn_redundant_casts = true
+warn_return_any = true
+warn_unused_configs = true
+warn_unused_ignores = true
+strict_optional = true
+warn_no_return = true
+warn_unreachable = true
+strict_concatenate = true
+pretty = true
+ignore_missing_imports = true

@@ -1,0 +1,61 @@
+name: Continuous Integration
+
+on:
+  pull_request:
+  push:
+    branches:
+      - master
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    name: 🎨 Linters
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      - name: Install dependencies
+        run: |
+          pip install -U pip setuptools
+          pip install -r dev-requirements.txt
+      - name: Type checking (Mypy)
+        run: |
+          mypy src/urllib3_ext_hface
+      - name: Import sorting check (isort)
+        run: |
+          isort --check src/urllib3_ext_hface
+      - name: Code format (Black)
+        run: |
+          black --check --diff --target-version=py37 src/urllib3_ext_hface
+      - name: Style guide enforcement (Flake8)
+        run: |
+          flake8 src/urllib3_ext_hface
+
+  tests:
+    name: ✅ Tests
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: [ "3.7", "3.8", "3.9", "3.10", "3.11", "3.12-dev" ]
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install dependencies
+        run: |
+          pip install -U pip setuptools
+          pip install -r dev-requirements.txt
+      - name: Run tests
+        run: |
+          pytest
+      - uses: codecov/codecov-action@v3

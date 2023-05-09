@@ -6,7 +6,7 @@
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
-project = "hface"
+project = "urllib3_ext_hface"
 copyright = "2022 Akamai Technologies"
 author = "Miloslav Pojman"
 
@@ -36,7 +36,7 @@ html_theme = "alabaster"
 html_static_path = ["_static/"]
 
 html_theme_options = {
-    "logo": "hface.png",
+    "logo": "urllib3_ext_hface.png",
     "logo_name": True,
     "description": "Hackable HTTP/{1,2,3} {client,server,proxy}",
     "fixed_sidebar": True,

@@ -1,28 +1,24 @@
 
 ===================================================
-hface - Hackable HTTP/{1,2,3} {client,server,proxy}
+urllib3 extension: hface
 ===================================================
 
 Documentation_ | GitHub_ | PyPI_
 
-* HTTP client and server written in Python
+This project is a fork of the akamai/hface project but highly slimmed.
+The purpose of that project is to enable basic support for HTTP/1.1, HTTP/2 and HTTP/3 in urllib3.
+
 * HTTP/1.1, HTTP/2, and HTTP/3 support
 * Sans-IO_ core with pluggable protocol implementations
-* asyncio_ or Trio_ support thanks to AnyIO_
 * Layered design with well-defined APIs
 
 See online documentation_ for more info.
 
-
-.. _Documentation: https://hface.readthedocs.io/
-.. _GitHub: https://github.com/akamai/hface
-.. _PyPI: https://pypi.org/project/hface/
+.. _Documentation: https://urllib3.readthedocs.io/
+.. _GitHub: https://github.com/Ousret/urllib3-ext-hface
+.. _PyPI: https://pypi.org/project/urllib3-ext-hface
 
 .. _Sans-IO: https://sans-io.readthedocs.io/
-.. _AnyIO: https://anyio.readthedocs.io/
-.. _asyncio: https://docs.python.org/3/library/asyncio.html
-.. _Trio: https://trio.readthedocs.io/en/stable/
-
 
 License
 -------

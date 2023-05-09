@@ -6,3 +6,5 @@ __pycache__
 .eggs
 build/
 dist/
+/.idea/
+/.coverage
