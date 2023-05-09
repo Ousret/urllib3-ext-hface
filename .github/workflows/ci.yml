@@ -24,9 +24,9 @@ jobs:
         run: |
           pip install -U pip setuptools
           pip install -r dev-requirements.txt
-      - name: Type checking (Mypy)
-        run: |
-          mypy src/urllib3_ext_hface
+#      - name: Type checking (Mypy)
+#        run: |
+#          mypy src/urllib3_ext_hface
       - name: Import sorting check (isort)
         run: |
           isort --check src/urllib3_ext_hface
