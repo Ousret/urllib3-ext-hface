@@ -5,7 +5,7 @@ build-backend = "hatchling.build"
 [project]
 name = "urllib3-ext-hface"
 description = "urllib3 extension to support HTTP/1.1, HTTP/2 and HTTP/3 independently of Python httplib"
-readme = {file = ["README.rst", "CHANGELOG.rst"], content-type = "text/x-rst"}
+readme = {file = "README.rst", content-type = "text/x-rst"}
 license = {text = "Apache-2.0"}
 keywords = ["urllib3", "quic", "h2", "extension", "h3", "h11"]
 authors = [
