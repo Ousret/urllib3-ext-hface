@@ -16,6 +16,4 @@ from __future__ import annotations
 
 from ._factories import HTTP2ClientFactory
 
-__all__ = (
-    "HTTP2ClientFactory",
-)
+__all__ = ("HTTP2ClientFactory",)

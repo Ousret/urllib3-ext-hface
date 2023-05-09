@@ -17,9 +17,4 @@ from __future__ import annotations
 from ._factories import HTTP3ClientFactory
 from ._quic import InvalidPacket, PacketInfo, sniff_packet
 
-__all__ = (
-    "HTTP3ClientFactory",
-    "InvalidPacket",
-    "PacketInfo",
-    "sniff_packet"
-)
+__all__ = ("HTTP3ClientFactory", "InvalidPacket", "PacketInfo", "sniff_packet")

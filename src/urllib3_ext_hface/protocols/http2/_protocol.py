@@ -86,8 +86,7 @@ class HTTP2ProtocolImpl(HTTP2Protocol):
             elif isinstance(e, h2.events.DataReceived):
                 end_stream = e.stream_ended is not None
                 self._connection.acknowledge_received_data(
-                    e.flow_controlled_length,
-                    e.stream_id
+                    e.flow_controlled_length, e.stream_id
                 )
                 yield DataReceived(e.stream_id, e.data, end_stream=end_stream)
             elif isinstance(e, h2.events.StreamReset):
