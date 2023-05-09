@@ -66,7 +66,7 @@ jobs:
       id-token: write
       contents: write
     with:
-      subject-base64: ${{ needs.checksum.outputs.hashes }}
+      base64-subjects: ${{ needs.checksum.outputs.hashes }}
       upload-assets: true
 
   deploy:
