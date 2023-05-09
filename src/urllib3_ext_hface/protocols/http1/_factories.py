@@ -17,8 +17,8 @@ from __future__ import annotations
 import h11
 
 from .._factories import HTTPOverTCPFactory
-from ._protocol import HTTP1ProtocolImpl
 from .._protocols import HTTP1Protocol
+from ._protocol import HTTP1ProtocolImpl
 
 ALPN_PROTOCOL = "http/1.1"
 

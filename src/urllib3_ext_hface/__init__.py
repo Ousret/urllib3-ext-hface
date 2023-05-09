@@ -17,6 +17,7 @@ from __future__ import annotations
 from ._configuration import ClientTLSConfig
 from ._error_codes import HTTPErrorCodes
 from ._typing import AddressType, DatagramType, HeadersType, HeaderType
+from ._version import __version__
 from .protocols import (
     ALPNHTTPFactory,
     HTTP1ClientFactory,
@@ -32,7 +33,6 @@ from .protocols import (
     HTTPProtocol,
     ProtocolRegistry,
 )
-from ._version import __version__
 
 __all__ = (
     "ClientTLSConfig",
