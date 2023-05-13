@@ -11,6 +11,7 @@ The purpose of that project is to enable basic support for HTTP/1.1, HTTP/2 and 
 * HTTP/1.1, HTTP/2, and HTTP/3 support
 * Sans-IO_ core with pluggable protocol implementations
 * Layered design with well-defined APIs
+* Client-oriented only
 
 See online documentation_ for more info.
 

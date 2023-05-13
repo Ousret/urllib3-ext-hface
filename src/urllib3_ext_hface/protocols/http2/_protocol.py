@@ -80,7 +80,14 @@ class HTTP2ProtocolImpl(HTTP2Protocol):
 
     def _map_events(self, h2_events: list[h2.events.Event]) -> Iterator[Event]:
         for e in h2_events:
-            if isinstance(e, (h2.events.RequestReceived, h2.events.ResponseReceived)):
+            if isinstance(
+                e,
+                (
+                    h2.events.RequestReceived,
+                    h2.events.ResponseReceived,
+                    h2.events.TrailersReceived,
+                ),
+            ):
                 end_stream = e.stream_ended is not None
                 yield HeadersReceived(e.stream_id, e.headers, end_stream=end_stream)
             elif isinstance(e, h2.events.DataReceived):

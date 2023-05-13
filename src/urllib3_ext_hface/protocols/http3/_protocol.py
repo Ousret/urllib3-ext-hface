@@ -15,60 +15,40 @@
 from __future__ import annotations
 
 from collections import deque
+from time import monotonic
 from typing import Iterable, Sequence
 
-import aioquic.h3.connection
-import aioquic.h3.events
-import aioquic.quic.configuration
-import aioquic.quic.connection
-import aioquic.quic.events
+import aioquic.h3.events as h3_events
+import aioquic.quic.events as quic_events
+from aioquic.h3.connection import H3Connection
+from aioquic.quic.configuration import QuicConfiguration
+from aioquic.quic.connection import QuicConnection
 
-from ..._typing import AddressType, DatagramType, HeadersType
-from ...events import (
-    ConnectionTerminated,
-    DataReceived,
-    Event,
-    HeadersReceived,
-    StreamResetReceived,
-)
+from ..._typing import AddressType, HeadersType
+from ...events import ConnectionTerminated, DataReceived, Event
+from ...events import HandshakeCompleted as _HandshakeCompleted
+from ...events import HeadersReceived, StreamResetReceived, UnclassifiedData
 from .._protocols import HTTP3Protocol
-from ._quic import sniff_packet
 
 
 class HTTP3ProtocolImpl(HTTP3Protocol):
-    _configuration: aioquic.quic.configuration.QuicConfiguration
-
-    # H3Connection and QuicConnection are initialized lazily.
-    #
-    # For server connections, we wait for original_destination_connection_id
-    # from the first packet. Also, QuicConnection.datagrams_to_send()
-    # raises exceptions until that first packet.
-    #
-    # For client connections, we have to delay QuicConnection.connect()
-    # util the internal clock are set.
-
-    _quic: aioquic.quic.connection.QuicConnection | None = None
-    _http: aioquic.h3.connection.H3Connection | None = None
-
-    _now: float | None = None
-
-    _connection_ids: set[bytes]
-
-    _event_buffer: deque[Event]
-    _terminated: bool = False
-
     def __init__(
         self,
-        configuration: aioquic.quic.configuration.QuicConfiguration,
+        configuration: QuicConfiguration,
         *,
         remote_address: AddressType | None = None,
     ) -> None:
         if configuration.is_client and remote_address is None:
             raise ValueError("remote_address is required for client connections.")
-        self._configuration = configuration
-        self._connection_ids = set()
+
+        self._configuration: QuicConfiguration = configuration
+        self._quic: QuicConnection = QuicConnection(configuration=self._configuration)
+        self._connection_ids: set[bytes] = set()
         self._remote_address = remote_address
-        self._event_buffer = deque()
+        self._event_buffer: deque[Event] = deque()
+        self._http: H3Connection | None = None
+        self._terminated: bool = False
+        self._now: float | None = None
 
     def is_available(self) -> bool:
         # TODO: check concurrent stream limit
@@ -79,7 +59,7 @@ class HTTP3ProtocolImpl(HTTP3Protocol):
         return self._terminated
 
     def get_available_stream_id(self) -> int:
-        return self._require_quic().get_next_available_stream_id()
+        return self._quic.get_next_available_stream_id()
 
     def submit_close(self, error_code: int = 0) -> None:
         # QUIC has two different frame types for closing the connection.
@@ -92,20 +72,22 @@ class HTTP3ProtocolImpl(HTTP3Protocol):
         # > The CONNECTION_CLOSE frame with a type of 0x1d is used
         # > to signal an error with the application that uses QUIC.
         frame_type = 0x1D if error_code else 0x1C
-        self._require_quic().close(error_code=error_code, frame_type=frame_type)
+        self._quic.close(error_code=error_code, frame_type=frame_type)
 
     def submit_headers(
         self, stream_id: int, headers: HeadersType, end_stream: bool = False
     ) -> None:
-        self._require_http().send_headers(stream_id, list(headers), end_stream)
+        assert self._http is not None
+        self._http.send_headers(stream_id, list(headers), end_stream)
 
     def submit_data(
         self, stream_id: int, data: bytes, end_stream: bool = False
     ) -> None:
-        self._require_http().send_data(stream_id, data, end_stream)
+        assert self._http is not None
+        self._http.send_data(stream_id, data, end_stream)
 
     def submit_stream_reset(self, stream_id: int, error_code: int = 0) -> None:
-        self._require_quic().reset_stream(stream_id, error_code)
+        self._quic.reset_stream(stream_id, error_code)
 
     def next_event(self) -> Event | None:
         if not self._event_buffer:
@@ -118,114 +100,63 @@ class HTTP3ProtocolImpl(HTTP3Protocol):
 
     def clock(self, now: float) -> None:
         self._now = now
-        if self._quic is None:
-            return
         timer = self._quic.get_timer()
         if timer is not None and now >= timer:
             self._quic.handle_timer(now)
             self._fetch_events()
 
     def get_timer(self) -> float | None:
-        if self._quic is None:
-            return None
         return self._quic.get_timer()
 
     def connection_lost(self) -> None:
         self._terminated = True
         self._event_buffer.append(ConnectionTerminated())
 
-    def datagram_received(self, datagram: DatagramType) -> None:
-        data, address = datagram
-        if self._quic is None and not self._configuration.is_client:
-            # For server, we initialize the QUIC connection when the first
-            # packet is received. That is necessary because aioquic
-            # QuicConnection requires original_destination_connection_id.
-            self._quic = self._server_connect(data)
-        self._require_quic().receive_datagram(data, address, self._require_now())
+    def bytes_received(self, data: bytes) -> None:
+        self._quic.receive_datagram(data, self._remote_address, now=monotonic())
         self._fetch_events()
 
-    def datagrams_to_send(self) -> Sequence[tuple[bytes, AddressType]]:
-        if self._quic is None and not self._configuration.is_client:
-            # No packet was received yet.
-            return []
-        return self._require_quic().datagrams_to_send(self._require_now())
+    def bytes_to_send(self) -> bytes:
+        now = monotonic()
+
+        if self._http is None:
+            self._quic.connect(self._remote_address, now=now)
+            self._http = H3Connection(self._quic)
+
+        return b"".join(
+            list(map(lambda e: e[0], self._quic.datagrams_to_send(now=now)))
+        )
 
     def _fetch_events(self) -> None:
-        quic = self._require_quic()
-        http = self._require_http()
-        for quic_event in iter(quic.next_event, None):
+        assert self._http is not None
+
+        for quic_event in iter(self._quic.next_event, None):
             self._event_buffer += self._map_quic_event(quic_event)
-            for h3_event in http.handle_event(quic_event):
+            for h3_event in self._http.handle_event(quic_event):
                 self._event_buffer += self._map_h3_event(h3_event)
 
-    def _map_quic_event(
-        self, quic_event: aioquic.quic.events.QuicEvent
-    ) -> Iterable[Event]:
-        if isinstance(quic_event, aioquic.quic.events.ConnectionIdIssued):
+    def _map_quic_event(self, quic_event: quic_events.QuicEvent) -> Iterable[Event]:
+        if isinstance(quic_event, quic_events.ConnectionIdIssued):
             self._connection_ids.add(quic_event.connection_id)
-        elif isinstance(quic_event, aioquic.quic.events.ConnectionIdRetired):
+        elif isinstance(quic_event, quic_events.ConnectionIdRetired):
             self._connection_ids.remove(quic_event.connection_id)
-        if isinstance(quic_event, aioquic.quic.events.HandshakeCompleted):
-            pass
-        elif isinstance(quic_event, aioquic.quic.events.ConnectionTerminated):
+
+        if isinstance(quic_event, quic_events.HandshakeCompleted):
+            yield _HandshakeCompleted(quic_event.alpn_protocol)
+        elif isinstance(quic_event, quic_events.ConnectionTerminated):
             self._terminated = True
             yield ConnectionTerminated(quic_event.error_code, quic_event.reason_phrase)
-        elif isinstance(quic_event, aioquic.quic.events.StreamReset):
+        elif isinstance(quic_event, quic_events.StreamReset):
             yield StreamResetReceived(quic_event.stream_id, quic_event.error_code)
+        elif isinstance(quic_event, quic_events.StreamDataReceived):
+            yield UnclassifiedData(
+                quic_event.stream_id, quic_event.data, quic_event.end_stream
+            )
 
-    def _map_h3_event(self, h3_event: aioquic.h3.events.H3Event) -> Iterable[Event]:
-        if isinstance(h3_event, aioquic.h3.events.HeadersReceived):
+    def _map_h3_event(self, h3_event: h3_events.H3Event) -> Iterable[Event]:
+        if isinstance(h3_event, h3_events.HeadersReceived):
             yield HeadersReceived(
                 h3_event.stream_id, h3_event.headers, h3_event.stream_ended
             )
-        elif isinstance(h3_event, aioquic.h3.events.DataReceived):
+        elif isinstance(h3_event, h3_events.DataReceived):
             yield DataReceived(h3_event.stream_id, h3_event.data, h3_event.stream_ended)
-
-    def _require_http(self) -> aioquic.h3.connection.H3Connection:
-        if self._http is None:
-            self._http = aioquic.h3.connection.H3Connection(self._require_quic())
-        return self._http
-
-    def _require_quic(self) -> aioquic.quic.connection.QuicConnection:
-        if self._quic is None:
-            if self._configuration.is_client:
-                # For clients, we initialize QUIC connection lazily, when first used.
-                # By then, the clock should be set already.
-                self._quic = self._client_connect()
-            else:
-                raise RuntimeError(
-                    "QUIC connection has not been initialized yet. "
-                    "Server connections are initialized when a first datagram "
-                    "is received. It is an error to submit anything "
-                    "before the first datagram from the client is received."
-                )
-        return self._quic
-
-    def _require_now(self) -> float:
-        if self._now is None:
-            raise RuntimeError(
-                "Clock has not been set. It is an error to call "
-                "HTTP3Protocol methods without setting the clock first."
-            )
-        return self._now
-
-    def _client_connect(self) -> aioquic.quic.connection.QuicConnection:
-        assert self._remote_address is not None
-        now = self._require_now()
-        quic = aioquic.quic.connection.QuicConnection(configuration=self._configuration)
-        quic.connect(self._remote_address, now)
-        return quic
-
-    def _server_connect(
-        self, initial_data: bytes
-    ) -> aioquic.quic.connection.QuicConnection:
-        packet_info = sniff_packet(
-            initial_data, connection_id_length=self._configuration.connection_id_length
-        )
-        quic = aioquic.quic.connection.QuicConnection(
-            configuration=self._configuration,
-            original_destination_connection_id=packet_info.destination_connection_id,
-        )
-        self._connection_ids.add(quic.original_destination_connection_id)
-        self._connection_ids.add(quic.host_cid)
-        return quic

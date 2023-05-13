@@ -139,6 +139,36 @@ class StreamResetSent(StreamReset):
 
 
 @dataclass
+class HandshakeCompleted(Event):
+    alpn_protocol: str | None
+
+    def __repr__(self) -> str:
+        cls = type(self).__name__
+        return f"{cls}(alpn={self.alpn_protocol})"
+
+
+@dataclass
+class UnclassifiedData(StreamEvent):
+    """
+    A frame containing unclassified data was received.
+    This is only useful for debug purposes.
+
+    Extends :class:`.StreamEvent`.
+    """
+
+    data: bytes
+
+    end_stream: bool = False
+
+    def __repr__(self) -> str:
+        cls = type(self).__name__
+        return (
+            f"{cls}(stream_id={self.stream_id!r}, "
+            f"len(data)={len(self.data)}, end_stream={self.end_stream!r})"
+        )
+
+
+@dataclass
 class HeadersReceived(StreamEvent):
     """
     A frame with HTTP headers was received.

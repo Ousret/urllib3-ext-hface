@@ -14,12 +14,12 @@
 
 from __future__ import annotations
 
-import os
 import ssl
 
 import aioquic.h3.connection
 import aioquic.quic.configuration
 import aioquic.quic.connection
+from aioquic.quic.logger import QuicFileLogger
 
 from ..._configuration import ClientTLSConfig
 from ..._typing import AddressType
@@ -48,23 +48,18 @@ class HTTP3ClientFactory(HTTPOverQUICClientFactory):
     ) -> HTTP3Protocol:
         configuration = self._build_configuration(tls_config=tls_config)
         configuration.server_name = server_name
+        configuration.load_verify_locations(tls_config.cafile)
         return HTTP3ProtocolImpl(configuration, remote_address=remote_address)
 
     def _build_configuration(
         self, *, tls_config: ClientTLSConfig
     ) -> aioquic.quic.configuration.QuicConfiguration:
-        # OpenSSL (so Python builtin ssl.SSLContext) trusts to SSL_CERT_FILE by default.
-        # We set it here explicitly, so that TLS implementations not using OpenSSL
-        # (namely aioquic and our default HTTP/3 implementation) use this variable too.
-        #
-        # We could (and probably should) be more sophisticated in unifying
-        # TLS configuration, but just this one hack helps a lot.
-        tls_cafile = tls_config.cafile or os.environ.get("SSL_CERT_FILE")
         return aioquic.quic.configuration.QuicConfiguration(
             is_client=True,
             verify_mode=ssl.CERT_NONE if tls_config.insecure else ssl.CERT_REQUIRED,
-            cafile=tls_cafile,
+            cafile=tls_config.cafile,
             capath=tls_config.capath,
             cadata=tls_config.cadata,
             alpn_protocols=["h3"],
+            quic_logger=QuicFileLogger("./"),
         )

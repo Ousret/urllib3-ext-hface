@@ -19,11 +19,13 @@ from ._events import (
     DataReceived,
     Event,
     GoawayReceived,
+    HandshakeCompleted,
     HeadersReceived,
     StreamEvent,
     StreamReset,
     StreamResetReceived,
     StreamResetSent,
+    UnclassifiedData,
 )
 
 __all__ = (
@@ -36,4 +38,6 @@ __all__ = (
     "StreamResetSent",
     "HeadersReceived",
     "DataReceived",
+    "HandshakeCompleted",
+    "UnclassifiedData",
 )

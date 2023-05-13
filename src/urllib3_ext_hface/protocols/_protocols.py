@@ -18,7 +18,7 @@ from abc import ABCMeta, abstractmethod
 from typing import Sequence
 
 from .._error_codes import HTTPErrorCodes
-from .._typing import DatagramType, HeadersType
+from .._typing import HeadersType
 from ..events import Event
 
 
@@ -101,22 +101,22 @@ class OverUDPProtocol(metaclass=ABCMeta):
         raise NotImplementedError
 
     @abstractmethod
-    def datagram_received(self, datagram: DatagramType) -> None:
+    def bytes_received(self, data: bytes) -> None:
         """
         Called when some data is received.
 
-        :param datagram: the received datagram.
+        :param data: the received UDP frame.
         """
         raise NotImplementedError
 
     # Sending direction
 
     @abstractmethod
-    def datagrams_to_send(self) -> Sequence[DatagramType]:
+    def bytes_to_send(self) -> bytes:
         """
         Returns data for sending out of the internal data buffer.
 
-        :return: datagrams to send
+        :return: UDP frame to send
         """
         raise NotImplementedError
 
