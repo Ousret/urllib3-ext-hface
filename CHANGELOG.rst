@@ -1,4 +1,4 @@
-v0.2.1 (2023-05-09)
+v0.2.1 (2023-05-13)
 --------
 
 * Simplification made in ``HTTP3Protocol`` so that closer to generic usage across protocols.
