@@ -16,6 +16,8 @@ from __future__ import annotations
 
 import dataclasses
 
+from aioquic.tls import CipherSuite, SessionTicket
+
 
 @dataclasses.dataclass
 class ClientTLSConfig:
@@ -34,6 +36,12 @@ class ClientTLSConfig:
 
     #: Blob with CA certificates to trust for server verification
     cadata: bytes | None = None
+
+    #: Manually set ciphers to be used in your DTLS
+    cipher_suites: list[CipherSuite] | None = None
+
+    #: The DTLS session ticket which should be used for session resumption
+    session_ticket: SessionTicket | None = None
 
     def clone(self) -> ClientTLSConfig:
         """

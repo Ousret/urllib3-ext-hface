@@ -19,7 +19,6 @@ import ssl
 import aioquic.h3.connection
 import aioquic.quic.configuration
 import aioquic.quic.connection
-from aioquic.quic.logger import QuicFileLogger
 
 from ..._configuration import ClientTLSConfig
 from ..._typing import AddressType
@@ -61,5 +60,6 @@ class HTTP3ClientFactory(HTTPOverQUICClientFactory):
             capath=tls_config.capath,
             cadata=tls_config.cadata,
             alpn_protocols=["h3"],
-            quic_logger=QuicFileLogger("./"),
+            cipher_suites=tls_config.cipher_suites,
+            session_ticket=tls_config.session_ticket,
         )

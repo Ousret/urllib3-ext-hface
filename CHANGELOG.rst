@@ -1,3 +1,8 @@
+v0.2.2 (2023-05-13)
+--------
+
+* Allow setting ciphers and session ticket through ``HTTP3ProtocolFactory``.
+
 v0.2.1 (2023-05-13)
 --------
 
