@@ -27,7 +27,7 @@ from urllib3_ext_hface.events import (
     HeadersReceived,
     StreamResetSent,
 )
-from urllib3_ext_hface.protocols import HTTPOverTCPProtocol, protocol_registry
+from urllib3_ext_hface.protocols import HTTPOverTCPProtocol, HTTP2ClientFactory
 
 CLIENT_MAGIC = b"PRI * HTTP/2.0\r\n\r\nSM\r\n\r\n"
 
@@ -99,9 +99,9 @@ def decode_headers(frame: bytes) -> HeadersType:
     return cast(HeadersType, decoder.decode(frame[9:], raw=True))
 
 
-@pytest.fixture(name="client", params=protocol_registry.http2_clients.keys())
+@pytest.fixture(name="client")
 def _client(request: Any) -> HTTPOverTCPProtocol:
-    factory = protocol_registry.http2_clients[request.param]
+    factory = HTTP2ClientFactory()
     return factory(tls_version="TLS 1.2", alpn_protocol="h2")
 
 

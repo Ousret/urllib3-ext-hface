@@ -26,23 +26,22 @@ from urllib3_ext_hface.events import (
     HeadersReceived,
     StreamResetReceived,
 )
-from urllib3_ext_hface.protocols import HTTPOverTCPProtocol, protocol_registry
+from urllib3_ext_hface.protocols import HTTPOverTCPProtocol, HTTP1ClientFactory, HTTP2ClientFactory
 
 
 def _generate_http1() -> Iterator[
     tuple[str, tuple[HTTPOverTCPProtocol, HTTPOverTCPProtocol]]
 ]:
-    for client_name, client_factory in protocol_registry.http1_clients.items():
-        client = client_factory(tls_version="TLS 1.2")
-        yield f"http1-{client_name}", (client,)
+
+    client = HTTP1ClientFactory()(tls_version="TLS 1.2")
+    yield f"http1-{HTTP1ClientFactory}", (client,)
 
 
 def _generate_http2() -> Iterator[
     tuple[str, tuple[HTTPOverTCPProtocol, HTTPOverTCPProtocol]]
 ]:
-    for client_name, client_factory in protocol_registry.http2_clients.items():
-        client = client_factory(tls_version="TLS 1.2", alpn_protocol="h2")
-        yield f"http2-{client_name}", (client,)
+    client = HTTP2ClientFactory()(tls_version="TLS 1.2", alpn_protocol="h2")
+    yield f"http2-{HTTP2ClientFactory}", (client,)
 
 
 def pytest_generate_tests(metafunc: pytest.Metafunc) -> None:
