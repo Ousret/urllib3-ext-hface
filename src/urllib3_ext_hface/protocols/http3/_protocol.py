@@ -27,7 +27,7 @@ from aioquic.quic.connection import QuicConnection
 from ..._typing import AddressType, HeadersType
 from ...events import ConnectionTerminated, DataReceived, Event
 from ...events import HandshakeCompleted as _HandshakeCompleted
-from ...events import HeadersReceived, StreamResetReceived, UnclassifiedData
+from ...events import HeadersReceived, StreamResetReceived
 from .._protocols import HTTP3Protocol
 
 
