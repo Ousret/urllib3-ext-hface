@@ -23,19 +23,9 @@ from ._protocols import (
     HTTPOverTCPProtocol,
     HTTPProtocol,
 )
-from ._registry import ProtocolRegistry
 from .http1 import HTTP1ClientFactory
 from .http2 import HTTP2ClientFactory
 from .http3 import HTTP3ClientFactory
-
-#: Global instance of :class:`ProtocolRegistry`
-#:
-#: Use setuptools entrypoints to register new implementations:
-#: See :meth:`.ProtocolRegistry.load_entry_points` how.
-#:
-#: :type: ProtocolRegistry
-protocol_registry = ProtocolRegistry()
-protocol_registry.load()
 
 __all__ = (
     "ALPNHTTPFactory",
@@ -51,5 +41,4 @@ __all__ = (
     "HTTPOverQUICProtocol",
     "HTTPOverTCPProtocol",
     "HTTPProtocol",
-    "ProtocolRegistry",
 )

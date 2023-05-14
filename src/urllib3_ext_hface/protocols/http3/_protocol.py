@@ -148,10 +148,6 @@ class HTTP3ProtocolImpl(HTTP3Protocol):
             yield ConnectionTerminated(quic_event.error_code, quic_event.reason_phrase)
         elif isinstance(quic_event, quic_events.StreamReset):
             yield StreamResetReceived(quic_event.stream_id, quic_event.error_code)
-        elif isinstance(quic_event, quic_events.StreamDataReceived):
-            yield UnclassifiedData(
-                quic_event.stream_id, quic_event.data, quic_event.end_stream
-            )
 
     def _map_h3_event(self, h3_event: h3_events.H3Event) -> Iterable[Event]:
         if isinstance(h3_event, h3_events.HeadersReceived):

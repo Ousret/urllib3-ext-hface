@@ -31,7 +31,6 @@ from .protocols import (
     HTTPOverTCPFactory,
     HTTPOverTCPProtocol,
     HTTPProtocol,
-    ProtocolRegistry,
 )
 
 __all__ = (
@@ -53,6 +52,5 @@ __all__ = (
     "HTTPOverTCPFactory",
     "HTTPOverTCPProtocol",
     "HTTPProtocol",
-    "ProtocolRegistry",
     "__version__",
 )
