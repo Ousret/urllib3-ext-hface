@@ -1,3 +1,9 @@
+v0.2.4 (2023-05-20)
+--------
+
+* Enforce `bytes_to_send` and `bytes_received` for all abstract protocols.
+* Implement graceful close for ``HTTP2Protocol`` (GoAway packet).
+
 v0.2.3 (2023-05-14)
 --------
 

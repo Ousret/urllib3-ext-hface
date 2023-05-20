@@ -57,7 +57,7 @@ class HTTP2ProtocolImpl(HTTP2Protocol):
         return stream_id
 
     def submit_close(self, error_code: int = 0) -> None:
-        pass  # TODO: send GOAWAY?
+        self._connection.close_connection(error_code)
 
     def submit_headers(
         self, stream_id: int, headers: HeadersType, end_stream: bool = False

@@ -22,7 +22,27 @@ from .._typing import HeadersType
 from ..events import Event
 
 
-class OverTCPProtocol(metaclass=ABCMeta):
+class BaseProtocol(metaclass=ABCMeta):
+    """Sans-IO common methods whenever it is TCP, UDP or QUIC."""
+
+    @abstractmethod
+    def bytes_received(self, data: bytes) -> None:
+        """
+        Called when some data is received.
+        """
+        raise NotImplementedError
+
+    # Sending direction
+
+    @abstractmethod
+    def bytes_to_send(self) -> bytes:
+        """
+        Returns data for sending out of the internal data buffer.
+        """
+        raise NotImplementedError
+
+
+class OverTCPProtocol(BaseProtocol):
     """
     Interface for sans-IO protocols on top TCP.
     """
@@ -40,22 +60,6 @@ class OverTCPProtocol(metaclass=ABCMeta):
     def eof_received(self) -> None:
         """
         Called when the other end signals it won’t send any more data.
-        """
-        raise NotImplementedError
-
-    @abstractmethod
-    def bytes_received(self, data: bytes) -> None:
-        """
-        Called when some data is received.
-        """
-        raise NotImplementedError
-
-    # Sending direction
-
-    @abstractmethod
-    def bytes_to_send(self) -> bytes:
-        """
-        Returns data for sending out of the internal data buffer.
         """
         raise NotImplementedError
 
@@ -97,26 +101,6 @@ class OverUDPProtocol(metaclass=ABCMeta):
     def connection_lost(self) -> None:
         """
         Called when the connection is lost or closed.
-        """
-        raise NotImplementedError
-
-    @abstractmethod
-    def bytes_received(self, data: bytes) -> None:
-        """
-        Called when some data is received.
-
-        :param data: the received UDP frame.
-        """
-        raise NotImplementedError
-
-    # Sending direction
-
-    @abstractmethod
-    def bytes_to_send(self) -> bytes:
-        """
-        Returns data for sending out of the internal data buffer.
-
-        :return: UDP frame to send
         """
         raise NotImplementedError
 

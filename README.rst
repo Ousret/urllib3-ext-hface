@@ -8,7 +8,7 @@ Documentation_ | GitHub_ | PyPI_
 This project is a fork of the akamai/hface project but highly slimmed.
 The purpose of that project is to enable basic support for HTTP/1.1, HTTP/2 and HTTP/3 in urllib3.
 
-* HTTP/1.1, HTTP/2, and HTTP/3 support
+* HTTP/1.1, HTTP/2, and HTTP/3 support through respectively h11, h2 and aioquic
 * Sans-IO_ core with pluggable protocol implementations
 * Layered design with well-defined APIs
 * Client-oriented only
