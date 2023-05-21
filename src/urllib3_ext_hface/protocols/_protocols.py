@@ -64,7 +64,7 @@ class OverTCPProtocol(BaseProtocol):
         raise NotImplementedError
 
 
-class OverUDPProtocol(metaclass=ABCMeta):
+class OverUDPProtocol(BaseProtocol):
     """
     Interface for sans-IO protocols on top UDP.
     """

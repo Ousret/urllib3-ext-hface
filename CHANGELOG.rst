@@ -1,3 +1,8 @@
+v0.2.6 (2023-05-21)
+--------
+
+* Fix ``OverUDPProtocol`` not inheriting ``BaseProtocol``.
+
 v0.2.5 (2023-05-21)
 --------
 
