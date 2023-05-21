@@ -57,7 +57,6 @@ class HTTP3ProtocolImpl(HTTP3Protocol):
 
     def has_expired(self) -> bool:
         # TODO: check that we do not run out of stream IDs.
-        self._quic.send_ping()
         return self._terminated
 
     @property

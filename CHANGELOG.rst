@@ -1,3 +1,8 @@
+v0.2.7 (2023-05-21)
+--------
+
+* Remove undesired and miscalled ping() method in quic connection.
+
 v0.2.6 (2023-05-21)
 --------
 
