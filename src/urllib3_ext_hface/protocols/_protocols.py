@@ -249,6 +249,11 @@ class HTTPProtocol(metaclass=ABCMeta):
         """
         raise NotImplementedError
 
+    @abstractmethod
+    def has_pending_event(self) -> bool:
+        """Verify if there is queued event waiting to be consumed."""
+        raise NotImplementedError
+
 
 class HTTPOverTCPProtocol(HTTPProtocol, OverTCPProtocol):
     """

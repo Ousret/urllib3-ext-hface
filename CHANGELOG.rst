@@ -1,3 +1,8 @@
+v0.2.8 (2023-05-21)
+--------
+
+* Add method ``has_pending_event`` across protocols impl.
+
 v0.2.7 (2023-05-21)
 --------
 

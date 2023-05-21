@@ -78,6 +78,9 @@ class HTTP2ProtocolImpl(HTTP2Protocol):
             return None
         return self._events.popleft()
 
+    def has_pending_event(self) -> bool:
+        return len(self._events) > 0
+
     def _map_events(self, h2_events: list[h2.events.Event]) -> Iterator[Event]:
         for e in h2_events:
             if isinstance(

@@ -286,6 +286,9 @@ class HTTP1ProtocolImpl(HTTP1Protocol):
             return None
         return self._event_buffer.popleft()
 
+    def has_pending_event(self) -> bool:
+        return len(self._event_buffer) > 0
+
     def _h11_submit(self, h11_event: h11.Event) -> None:
         chunks = self._connection.send_with_data_passthrough(h11_event)
         if chunks:

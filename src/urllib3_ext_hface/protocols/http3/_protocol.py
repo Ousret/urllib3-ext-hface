@@ -99,6 +99,9 @@ class HTTP3ProtocolImpl(HTTP3Protocol):
             return None
         return self._event_buffer.popleft()
 
+    def has_pending_event(self) -> bool:
+        return len(self._event_buffer) > 0
+
     @property
     def connection_ids(self) -> Sequence[bytes]:
         return list(self._connection_ids)
