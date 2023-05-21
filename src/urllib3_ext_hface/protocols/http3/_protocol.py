@@ -23,6 +23,7 @@ import aioquic.quic.events as quic_events
 from aioquic.h3.connection import H3Connection
 from aioquic.quic.configuration import QuicConfiguration
 from aioquic.quic.connection import QuicConnection
+from aioquic.tls import SessionTicket
 
 from ..._typing import AddressType, HeadersType
 from ...events import ConnectionTerminated, DataReceived, Event
@@ -57,6 +58,10 @@ class HTTP3ProtocolImpl(HTTP3Protocol):
     def has_expired(self) -> bool:
         # TODO: check that we do not run out of stream IDs.
         return self._terminated
+
+    @property
+    def session_ticket(self) -> SessionTicket | None:
+        return self._quic.tls.session_ticket if self._quic and self._quic.tls else None
 
     def get_available_stream_id(self) -> int:
         return self._quic.get_next_available_stream_id()

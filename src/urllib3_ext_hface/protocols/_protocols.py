@@ -118,6 +118,11 @@ class OverQUICProtocol(OverUDPProtocol):
         """
         raise NotImplementedError
 
+    @property
+    @abstractmethod
+    def session_ticket(self) -> object | None:
+        raise NotImplementedError
+
 
 class HTTPProtocol(metaclass=ABCMeta):
     """

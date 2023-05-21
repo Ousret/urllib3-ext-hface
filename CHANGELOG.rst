@@ -1,3 +1,8 @@
+v0.2.5 (2023-05-21)
+--------
+
+* Add getter for the ``SessionTicket`` provided by aioquic in ``HTTP3Protocol``.
+
 v0.2.4 (2023-05-20)
 --------
 
