@@ -1,3 +1,8 @@
+v0.2.9 (2023-05-23)
+--------
+
+* No longer alter (lower) header name case in h11 response event.
+
 v0.2.8 (2023-05-21)
 --------
 

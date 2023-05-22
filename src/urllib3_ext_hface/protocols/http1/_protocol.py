@@ -152,7 +152,6 @@ def headers_from_response(
     regular_headers: list[HeaderType] = []
 
     for name, value in response.headers:
-        name = name.lower()
         if name.startswith(b":"):
             raise ValueError("Pseudo header not allowed in HTTP/1: " + name.decode())
         regular_headers.append((name, value))
