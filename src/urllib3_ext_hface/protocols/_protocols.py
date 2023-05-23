@@ -130,6 +130,12 @@ class HTTPProtocol(metaclass=ABCMeta):
 
     """
 
+    @staticmethod
+    @abstractmethod
+    def exceptions() -> tuple[type[BaseException], ...]:
+        """Return exception types that should be handled in your application."""
+        raise NotImplementedError
+
     @property
     @abstractmethod
     def http_version(self) -> str:

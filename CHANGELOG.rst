@@ -1,3 +1,8 @@
+v0.2.10 (2023-05-23)
+--------
+
+* Add staticmethod ``exceptions`` on ``HTTPProtocol`` that return sub-dependency-protocol specific exceptions.
+
 v0.2.9 (2023-05-23)
 --------
 

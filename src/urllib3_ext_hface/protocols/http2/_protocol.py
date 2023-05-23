@@ -44,6 +44,10 @@ class HTTP2ProtocolImpl(HTTP2Protocol):
         self._connection.initiate_connection()
         self._events = deque()
 
+    @staticmethod
+    def exceptions() -> tuple[type[BaseException], ...]:
+        return h2.exceptions.ProtocolError, h2.exceptions.H2Error
+
     def is_available(self) -> bool:
         # TODO: check concurrent stream limit
         return not self._terminated

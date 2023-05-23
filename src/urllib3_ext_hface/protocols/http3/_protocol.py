@@ -20,9 +20,10 @@ from typing import Iterable, Sequence
 
 import aioquic.h3.events as h3_events
 import aioquic.quic.events as quic_events
-from aioquic.h3.connection import H3Connection
+from aioquic.h3.connection import H3Connection, ProtocolError
+from aioquic.h3.exceptions import H3Error
 from aioquic.quic.configuration import QuicConfiguration
-from aioquic.quic.connection import QuicConnection
+from aioquic.quic.connection import QuicConnection, QuicConnectionError
 from aioquic.tls import SessionTicket
 
 from ..._typing import AddressType, HeadersType
@@ -50,6 +51,10 @@ class HTTP3ProtocolImpl(HTTP3Protocol):
         self._http: H3Connection | None = None
         self._terminated: bool = False
         self._now: float | None = None
+
+    @staticmethod
+    def exceptions() -> tuple[type[BaseException], ...]:
+        return ProtocolError, H3Error, QuicConnectionError
 
     def is_available(self) -> bool:
         # TODO: check concurrent stream limit

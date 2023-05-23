@@ -182,6 +182,10 @@ class HTTP1ProtocolImpl(HTTP1Protocol):
         self._data_buffer = []
         self._event_buffer = deque()
 
+    @staticmethod
+    def exceptions() -> tuple[type[BaseException], ...]:
+        return h11.LocalProtocolError, h11.ProtocolError, h11.RemoteProtocolError
+
     @property
     def http_version(self) -> str:
         their_http_version = self._connection.their_http_version
