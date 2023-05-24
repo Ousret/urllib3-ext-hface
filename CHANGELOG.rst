@@ -1,3 +1,8 @@
+v0.2.11 (2023-05-24)
+--------
+
+* Add keyfile, certfile and keypassword in ``ClientTLSConfig`` to be passed down the QUIC configuration.
+
 v0.2.10 (2023-05-23)
 --------
 

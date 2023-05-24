@@ -46,6 +46,12 @@ class HTTP3ClientFactory(HTTPOverQUICClientFactory):
         tls_config: ClientTLSConfig,
     ) -> HTTP3Protocol:
         configuration = self._build_configuration(tls_config=tls_config)
+        if tls_config.certfile:
+            configuration.load_cert_chain(
+                tls_config.certfile,  # type: ignore[arg-type]
+                tls_config.keyfile,  # type: ignore[arg-type]
+                tls_config.keypassword,
+            )
         configuration.server_name = server_name
         configuration.load_verify_locations(tls_config.cafile)
         return HTTP3ProtocolImpl(configuration, remote_address=remote_address)

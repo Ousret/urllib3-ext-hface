@@ -37,6 +37,13 @@ class ClientTLSConfig:
     #: Blob with CA certificates to trust for server verification
     cadata: bytes | None = None
 
+    #: If provided, will trigger an additional load_cert_chain() upon the QUIC Configuration
+    certfile: str | None = None
+
+    keyfile: str | None = None
+
+    keypassword: str | bytes | None = None
+
     #: Manually set ciphers to be used in your DTLS
     cipher_suites: list[CipherSuite] | None = None
 
