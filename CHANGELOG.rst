@@ -1,3 +1,9 @@
+v0.2.12 (2023-05-25)
+--------------------
+
+* Remove ``InvalidPacket``, ``PacketInfo`` from protocols.http3.
+* Fix an error trying to unset previously unknown connection id in quic event handler.
+
 v0.2.11 (2023-05-24)
 --------
 

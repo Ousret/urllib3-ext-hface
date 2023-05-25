@@ -152,7 +152,12 @@ class HTTP3ProtocolImpl(HTTP3Protocol):
         if isinstance(quic_event, quic_events.ConnectionIdIssued):
             self._connection_ids.add(quic_event.connection_id)
         elif isinstance(quic_event, quic_events.ConnectionIdRetired):
-            self._connection_ids.remove(quic_event.connection_id)
+            try:
+                self._connection_ids.remove(quic_event.connection_id)
+            except (
+                KeyError
+            ):  # it is surprising, learn more about this with aioquic maintainer.
+                pass
 
         if isinstance(quic_event, quic_events.HandshakeCompleted):
             yield _HandshakeCompleted(quic_event.alpn_protocol)

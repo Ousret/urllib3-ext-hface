@@ -15,7 +15,7 @@
 from __future__ import annotations
 
 from abc import ABCMeta, abstractmethod
-from typing import Sequence
+from typing import Any, Sequence
 
 from .._error_codes import HTTPErrorCodes
 from .._typing import HeadersType
@@ -120,7 +120,7 @@ class OverQUICProtocol(OverUDPProtocol):
 
     @property
     @abstractmethod
-    def session_ticket(self) -> object | None:
+    def session_ticket(self) -> Any | None:
         raise NotImplementedError
 
 
