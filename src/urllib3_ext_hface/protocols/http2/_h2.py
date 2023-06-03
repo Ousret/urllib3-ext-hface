@@ -17,10 +17,10 @@ from __future__ import annotations
 from collections import deque
 from typing import Iterator, cast
 
+import h2.config
 import h2.connection
 import h2.events
 import h2.exceptions
-import h2.config
 
 from ..._typing import HeadersType
 from ...events import (

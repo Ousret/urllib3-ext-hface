@@ -14,26 +14,25 @@
 
 from __future__ import annotations
 
+import ssl
 from collections import deque
 from time import monotonic
 from typing import Iterable, Sequence
-import ssl
 
 import aioquic.h3.events as h3_events
 import aioquic.quic.events as quic_events
-
 from aioquic.h3.connection import H3Connection, ProtocolError
 from aioquic.h3.exceptions import H3Error
 from aioquic.quic.configuration import QuicConfiguration
 from aioquic.quic.connection import QuicConnection, QuicConnectionError
 from aioquic.tls import SessionTicket
 
+from ..._configuration import QuicTLSConfig
 from ..._typing import AddressType, HeadersType
 from ...events import ConnectionTerminated, DataReceived, Event
 from ...events import HandshakeCompleted as _HandshakeCompleted
 from ...events import HeadersReceived, StreamResetReceived
 from .._protocols import HTTP3Protocol
-from ..._configuration import QuicTLSConfig
 
 
 class HTTP3ProtocolAioQuicImpl(HTTP3Protocol):

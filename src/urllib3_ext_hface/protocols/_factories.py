@@ -26,9 +26,9 @@ delegating the initialization to factories.
 """
 from __future__ import annotations
 
-from abc import ABCMeta
 import importlib
 import inspect
+from abc import ABCMeta
 from typing import Any
 
 from ._protocols import HTTPOverQUICProtocol, HTTPOverTCPProtocol, HTTPProtocol

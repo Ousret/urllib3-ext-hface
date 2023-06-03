@@ -15,14 +15,14 @@
 from __future__ import annotations
 
 from abc import ABCMeta, abstractmethod
-from typing import Any, Sequence, Protocol
+from typing import Any, Sequence
 
 from .._error_codes import HTTPErrorCodes
 from .._typing import HeadersType
 from ..events import Event
 
 
-class BaseProtocol(Protocol, metaclass=ABCMeta):
+class BaseProtocol(metaclass=ABCMeta):
     """Sans-IO common methods whenever it is TCP, UDP or QUIC."""
 
     @abstractmethod

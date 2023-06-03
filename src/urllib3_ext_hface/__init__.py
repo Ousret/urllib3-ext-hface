@@ -18,13 +18,13 @@ from ._configuration import QuicTLSConfig
 from ._error_codes import HTTPErrorCodes
 from ._version import __version__
 from .protocols import (
-    HTTPProtocolFactory,
     HTTP1Protocol,
     HTTP2Protocol,
     HTTP3Protocol,
     HTTPOverQUICProtocol,
     HTTPOverTCPProtocol,
     HTTPProtocol,
+    HTTPProtocolFactory,
 )
 
 __all__ = (
