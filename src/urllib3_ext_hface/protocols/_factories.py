@@ -26,116 +26,52 @@ delegating the initialization to factories.
 """
 from __future__ import annotations
 
-from abc import ABCMeta, abstractmethod
-from typing import Sequence
+from abc import ABCMeta
+import importlib
+import inspect
+from typing import Any
 
-from .._configuration import ClientTLSConfig
-from .._typing import AddressType
-from ._protocols import HTTPOverQUICProtocol, HTTPOverTCPProtocol
-
-
-class HTTPOverTCPFactory(metaclass=ABCMeta):
-    """
-    Interface for factories that create :class:`HTTPOverTCPProtocol` instances.
-    """
-
-    @property
-    @abstractmethod
-    def alpn_protocols(self) -> Sequence[str]:
-        """
-        ALPN protocols to be offered in TLS handshake.
-
-        Ordered from the most preferred to the least.
-        """
-        raise NotImplementedError
-
-    @abstractmethod
-    def __call__(
-        self,
-        *,
-        tls_version: str | None = None,
-        alpn_protocol: str | None = None,
-    ) -> HTTPOverTCPProtocol:
-        """
-        Create :class:`HTTPOverTCPProtocol` managing an HTTP connection.
-
-        :param tls_version: TLS version if the connection is secure.
-            This will be ``None`` for insecure connection.
-        :param alpn_protocol: an ALPN protocol negotiated during a TLS handshake.
-            This will be ``None`` for insecure connection and for HTTP/3,
-            because the TLS handshake happens at the QUIC layer.
-        :return: a fresh instance of an HTTP protocol
-        """
-        raise NotImplementedError
+from ._protocols import HTTPOverQUICProtocol, HTTPOverTCPProtocol, HTTPProtocol
 
 
-class ALPNHTTPFactory(HTTPOverTCPFactory):
-    """
-    A factory that select between other factories based on ALPN.
+class HTTPProtocolFactory(metaclass=ABCMeta):
+    @staticmethod
+    def new(
+        type_protocol: type[HTTPProtocol],
+        implementation: str | None = None,
+        **kwargs: Any,
+    ) -> HTTPOverQUICProtocol | HTTPOverTCPProtocol:
+        assert type_protocol != HTTPProtocol
 
-    Implements :class:`.HTTPOverTCPFactory`.
+        version_target: str = "".join(
+            c
+            for c in str(type_protocol).replace("urllib3_ext_hface", "")
+            if c.isdigit()
+        )
+        module_expr: str = f".protocols.http{version_target}"
 
-    :param factories: supported protocols
-    :param default_alpn_protocol: ALPN of the default protocol
-    """
+        if implementation:
+            module_expr += f"._{implementation.lower()}"
 
-    _factories: dict[str, HTTPOverTCPFactory]
-    _default_alpn_protocol: str
-
-    def __init__(
-        self,
-        factories: Sequence[HTTPOverTCPFactory],
-        default_alpn_protocol: str = "http/1.1",
-    ):
-        self._factories = {}
-        for factory in factories:
-            for alpn in factory.alpn_protocols:
-                self._factories.setdefault(alpn, factory)
-        self._default_alpn_protocol = default_alpn_protocol
-
-    @property
-    def alpn_protocols(self) -> Sequence[str]:
-        return list(self._factories.keys())
-
-    def __call__(
-        self,
-        *,
-        tls_version: str | None = None,
-        alpn_protocol: str | None = None,
-    ) -> HTTPOverTCPProtocol:
-        if alpn_protocol is None:
-            alpn_protocol = self._default_alpn_protocol
-        return self._factories[alpn_protocol](
-            tls_version=tls_version,
-            alpn_protocol=alpn_protocol,
+        http_module = importlib.import_module(
+            f".protocols.http{version_target}", "urllib3_ext_hface"
         )
 
+        implementations: list[
+            tuple[str, type[HTTPOverQUICProtocol | HTTPOverTCPProtocol]]
+        ] = inspect.getmembers(
+            http_module,
+            lambda e: isinstance(e, type)
+            and issubclass(e, (HTTPOverQUICProtocol, HTTPOverTCPProtocol)),
+        )
 
-class HTTPOverQUICClientFactory(metaclass=ABCMeta):
-    """
-    Interface for factories that create :class:`HTTPOverQUICProtocol` for clients.
-    """
+        if not implementations:
+            raise ImportError(
+                "Unable to instantiate a HTTPProtocol for given type target and implementation."
+            )
 
-    @abstractmethod
-    def __call__(
-        self,
-        *,
-        remote_address: AddressType,
-        server_name: str,
-        tls_config: ClientTLSConfig,
-    ) -> HTTPOverQUICProtocol:
-        """
-        Create :class:`HTTPOverQUICProtocol` managing an HTTP connection.
+        implementation_target: type[
+            HTTPOverQUICProtocol | HTTPOverTCPProtocol
+        ] = implementations.pop()[1]
 
-        :param remote_address: network address of the peer.
-            This is necessary for client HTTP/3 connections because destination
-            addresses for UDP packets are select at the QUIC layer.
-        :param server_name: a server name sent in SNI.
-            This is necessary for HTTP/3 connections because TLS
-            handshake happens at the QUIC layer.
-        :param: tls_config: TLS configuration
-            This is necessary for HTTP/3 connections because TLS
-            handshake happens at the QUIC layer.
-        :return: a fresh instance of an HTTP protocol
-        """
-        raise NotImplementedError
+        return implementation_target(**kwargs)

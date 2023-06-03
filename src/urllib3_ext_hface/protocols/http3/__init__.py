@@ -14,6 +14,6 @@
 
 from __future__ import annotations
 
-from ._factories import HTTP3ClientFactory
+from ._aioquic import HTTP3ProtocolAioQuicImpl
 
-__all__ = ("HTTP3ClientFactory",)
+__all__ = ("HTTP3ProtocolAioQuicImpl",)

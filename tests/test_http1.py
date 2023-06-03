@@ -19,15 +19,14 @@ from typing import Any
 import pytest
 from helpers import build_request_headers, build_response_headers
 
-from urllib3_ext_hface import HeadersType
+from urllib3_ext_hface._typing import HeadersType
 from urllib3_ext_hface.events import ConnectionTerminated, DataReceived, HeadersReceived
-from urllib3_ext_hface.protocols import HTTPOverTCPProtocol, HTTP1ClientFactory
+from urllib3_ext_hface.protocols import HTTPOverTCPProtocol, HTTPProtocolFactory, HTTP1Protocol
 
 
 @pytest.fixture(name="client")
 def _client(request: Any) -> HTTPOverTCPProtocol:
-    factory = HTTP1ClientFactory()
-    return factory(tls_version="TLS 1.2")
+    return HTTPProtocolFactory.new(HTTP1Protocol)
 
 
 def assert_connection_available(protocol: HTTPOverTCPProtocol) -> None:

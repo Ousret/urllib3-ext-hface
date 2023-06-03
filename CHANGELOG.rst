@@ -1,3 +1,9 @@
+v0.3.0 (2023-06-03)
+-------------------
+
+* Breaking: Conception simplification. Remove HTTPFactories in favor of a single unified HTTPFactory.
+* Lazy import HTTPProtocol implementation.
+
 v0.2.12 (2023-05-25)
 --------------------
 
@@ -17,7 +23,7 @@ v0.2.10 (2023-05-23)
 v0.2.9 (2023-05-23)
 --------
 
-* No longer alter (lower) header name case in h11 response event.
+* No longer lower (twice) header name case in h11 response event.
 
 v0.2.8 (2023-05-21)
 --------

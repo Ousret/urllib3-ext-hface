@@ -17,31 +17,26 @@ from __future__ import annotations
 from typing import Iterator
 
 import pytest
-from helpers import build_request_headers, build_response_headers
 
 from urllib3_ext_hface.events import (
-    ConnectionTerminated,
-    DataReceived,
     Event,
-    HeadersReceived,
-    StreamResetReceived,
 )
-from urllib3_ext_hface.protocols import HTTPOverTCPProtocol, HTTP1ClientFactory, HTTP2ClientFactory
+from urllib3_ext_hface.protocols import HTTPOverTCPProtocol, HTTPProtocolFactory, HTTP1Protocol, HTTP2Protocol
 
 
 def _generate_http1() -> Iterator[
     tuple[str, tuple[HTTPOverTCPProtocol, HTTPOverTCPProtocol]]
 ]:
 
-    client = HTTP1ClientFactory()(tls_version="TLS 1.2")
-    yield f"http1-{HTTP1ClientFactory}", (client,)
+    client = HTTPProtocolFactory.new(HTTP1Protocol)
+    yield f"http1-{HTTP1Protocol}", (client,)
 
 
 def _generate_http2() -> Iterator[
     tuple[str, tuple[HTTPOverTCPProtocol, HTTPOverTCPProtocol]]
 ]:
-    client = HTTP2ClientFactory()(tls_version="TLS 1.2", alpn_protocol="h2")
-    yield f"http2-{HTTP2ClientFactory}", (client,)
+    client = HTTPProtocolFactory.new(HTTP2Protocol)
+    yield f"http2-{HTTP2Protocol}", (client,)
 
 
 def pytest_generate_tests(metafunc: pytest.Metafunc) -> None:

@@ -16,11 +16,11 @@ from __future__ import annotations
 
 import dataclasses
 
-from aioquic.tls import CipherSuite, SessionTicket
+from typing import Any
 
 
 @dataclasses.dataclass
-class ClientTLSConfig:
+class QuicTLSConfig:
     """
     Client TLS configuration.
     """
@@ -44,13 +44,10 @@ class ClientTLSConfig:
 
     keypassword: str | bytes | None = None
 
-    #: Manually set ciphers to be used in your DTLS
-    cipher_suites: list[CipherSuite] | None = None
-
     #: The DTLS session ticket which should be used for session resumption
-    session_ticket: SessionTicket | None = None
+    session_ticket: Any | None = None
 
-    def clone(self) -> ClientTLSConfig:
+    def clone(self) -> QuicTLSConfig:
         """
         Clone this instance.
         """

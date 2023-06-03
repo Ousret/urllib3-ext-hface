@@ -14,16 +14,16 @@
 
 from __future__ import annotations
 
-import urllib3_ext_hface
+from urllib3_ext_hface._typing import HeaderType
 
 
 def build_request_headers(
-    *extra_headers: urllib3_ext_hface.HeaderType,
+    *extra_headers: HeaderType,
     method: bytes = b"GET",
     scheme: bytes = b"https",
     authority: bytes = b"example.com",
     path: bytes = b"/",
-) -> list[urllib3_ext_hface.HeaderType]:
+) -> list[HeaderType]:
     return [
         (b":method", method),
         (b":scheme", scheme),
@@ -33,9 +33,9 @@ def build_request_headers(
 
 
 def build_response_headers(
-    *extra_headers: urllib3_ext_hface.HeaderType,
+    *extra_headers: HeaderType,
     status: bytes = b"200",
-) -> list[urllib3_ext_hface.HeaderType]:
+) -> list[HeaderType]:
     return [
         (b":status", status),
     ] + list(extra_headers)

@@ -15,14 +15,14 @@
 from __future__ import annotations
 
 from abc import ABCMeta, abstractmethod
-from typing import Any, Sequence
+from typing import Any, Sequence, Protocol
 
 from .._error_codes import HTTPErrorCodes
 from .._typing import HeadersType
 from ..events import Event
 
 
-class BaseProtocol(metaclass=ABCMeta):
+class BaseProtocol(Protocol, metaclass=ABCMeta):
     """Sans-IO common methods whenever it is TCP, UDP or QUIC."""
 
     @abstractmethod
@@ -127,8 +127,9 @@ class OverQUICProtocol(OverUDPProtocol):
 class HTTPProtocol(metaclass=ABCMeta):
     """
     Sans-IO representation of an HTTP connection
-
     """
+
+    implementation: str
 
     @staticmethod
     @abstractmethod

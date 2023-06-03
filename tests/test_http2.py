@@ -20,14 +20,14 @@ import hpack
 import pytest
 from helpers import build_request_headers, build_response_headers
 
-from urllib3_ext_hface import HeadersType, HeaderType
+from urllib3_ext_hface._typing import HeadersType, HeaderType
 from urllib3_ext_hface.events import (
     ConnectionTerminated,
     DataReceived,
     HeadersReceived,
     StreamResetSent,
 )
-from urllib3_ext_hface.protocols import HTTPOverTCPProtocol, HTTP2ClientFactory
+from urllib3_ext_hface.protocols import HTTPOverTCPProtocol, HTTPProtocolFactory, HTTP2Protocol
 
 CLIENT_MAGIC = b"PRI * HTTP/2.0\r\n\r\nSM\r\n\r\n"
 
@@ -101,8 +101,7 @@ def decode_headers(frame: bytes) -> HeadersType:
 
 @pytest.fixture(name="client")
 def _client(request: Any) -> HTTPOverTCPProtocol:
-    factory = HTTP2ClientFactory()
-    return factory(tls_version="TLS 1.2", alpn_protocol="h2")
+    return HTTPProtocolFactory.new(HTTP2Protocol)
 
 
 def assert_connection_available(protocol: HTTPOverTCPProtocol) -> None:

@@ -17,9 +17,11 @@ from __future__ import annotations
 from collections import deque
 from time import monotonic
 from typing import Iterable, Sequence
+import ssl
 
 import aioquic.h3.events as h3_events
 import aioquic.quic.events as quic_events
+
 from aioquic.h3.connection import H3Connection, ProtocolError
 from aioquic.h3.exceptions import H3Error
 from aioquic.quic.configuration import QuicConfiguration
@@ -31,26 +33,45 @@ from ...events import ConnectionTerminated, DataReceived, Event
 from ...events import HandshakeCompleted as _HandshakeCompleted
 from ...events import HeadersReceived, StreamResetReceived
 from .._protocols import HTTP3Protocol
+from ..._configuration import QuicTLSConfig
 
 
-class HTTP3ProtocolImpl(HTTP3Protocol):
+class HTTP3ProtocolAioQuicImpl(HTTP3Protocol):
+    implementation: str = "aioquic"
+
     def __init__(
         self,
-        configuration: QuicConfiguration,
         *,
-        remote_address: AddressType | None = None,
+        remote_address: AddressType,
+        server_name: str,
+        tls_config: QuicTLSConfig,
     ) -> None:
-        if configuration.is_client and remote_address is None:
-            raise ValueError("remote_address is required for client connections.")
+        self._configuration: QuicConfiguration = QuicConfiguration(
+            is_client=True,
+            verify_mode=ssl.CERT_NONE if tls_config.insecure else ssl.CERT_REQUIRED,
+            cafile=tls_config.cafile,
+            capath=tls_config.capath,
+            cadata=tls_config.cadata,
+            alpn_protocols=["h3"],
+            session_ticket=tls_config.session_ticket,
+            server_name=server_name,
+        )
 
-        self._configuration: QuicConfiguration = configuration
+        if tls_config.certfile:
+            self._configuration.load_cert_chain(
+                tls_config.certfile,  # type: ignore[arg-type]
+                tls_config.keyfile,  # type: ignore[arg-type]
+                tls_config.keypassword,
+            )
+
+        self._configuration.load_verify_locations(tls_config.cafile)
+
         self._quic: QuicConnection = QuicConnection(configuration=self._configuration)
         self._connection_ids: set[bytes] = set()
         self._remote_address = remote_address
         self._event_buffer: deque[Event] = deque()
         self._http: H3Connection | None = None
         self._terminated: bool = False
-        self._now: float | None = None
 
     @staticmethod
     def exceptions() -> tuple[type[BaseException], ...]:
@@ -112,7 +133,6 @@ class HTTP3ProtocolImpl(HTTP3Protocol):
         return list(self._connection_ids)
 
     def clock(self, now: float) -> None:
-        self._now = now
         timer = self._quic.get_timer()
         if timer is not None and now >= timer:
             self._quic.handle_timer(now)

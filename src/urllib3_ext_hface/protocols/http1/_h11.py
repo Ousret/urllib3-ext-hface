@@ -160,27 +160,22 @@ def headers_from_response(
     return pseudo_headers + regular_headers
 
 
-class HTTP1ProtocolImpl(HTTP1Protocol):
-    _scheme: bytes
-
-    _connection: h11.Connection
-    _current_stream_id: int = 1
-
-    _data_buffer: list[bytes]
-    _event_buffer: deque[Event]
-
-    _terminated: bool = False
+class HTTP1ProtocolHyperImpl(HTTP1Protocol):
+    implementation: str = "h11"
 
     def __init__(
         self,
-        connection: h11.Connection,
         *,
         scheme: str = "http",
     ) -> None:
-        self._connection = connection
-        self._scheme = scheme.encode()
-        self._data_buffer = []
-        self._event_buffer = deque()
+        self._connection: h11.Connection = h11.Connection(h11.CLIENT)
+        self._scheme: bytes = scheme.encode()
+        self._data_buffer: list[bytes] = []
+        self._event_buffer: deque[Event] = deque()
+        self._terminated: bool = False
+        self._switched: bool = False
+
+        self._current_stream_id: int = 1
 
     @staticmethod
     def exceptions() -> tuple[type[BaseException], ...]:
@@ -213,7 +208,7 @@ class HTTP1ProtocolImpl(HTTP1Protocol):
         return self._current_stream_id
 
     def submit_close(self, error_code: int = 0) -> None:
-        pass  # noop
+        pass  # no-op
 
     def submit_headers(
         self, stream_id: int, headers: HeadersType, end_stream: bool = False
@@ -355,8 +350,6 @@ class HTTP1ProtocolImpl(HTTP1Protocol):
     ) -> Event:
         self._terminated = True
         return ConnectionTerminated(error_code, message)
-
-    _switched: bool = False
 
     def _maybe_start_next_cycle(self) -> None:
         if h11.DONE == self._connection.our_state == self._connection.their_state:

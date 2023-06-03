@@ -14,43 +14,28 @@
 
 from __future__ import annotations
 
-from ._configuration import ClientTLSConfig
+from ._configuration import QuicTLSConfig
 from ._error_codes import HTTPErrorCodes
-from ._typing import AddressType, DatagramType, HeadersType, HeaderType
 from ._version import __version__
 from .protocols import (
-    ALPNHTTPFactory,
-    HTTP1ClientFactory,
+    HTTPProtocolFactory,
     HTTP1Protocol,
-    HTTP2ClientFactory,
     HTTP2Protocol,
-    HTTP3ClientFactory,
     HTTP3Protocol,
-    HTTPOverQUICClientFactory,
     HTTPOverQUICProtocol,
-    HTTPOverTCPFactory,
     HTTPOverTCPProtocol,
     HTTPProtocol,
 )
 
 __all__ = (
-    "ClientTLSConfig",
+    "QuicTLSConfig",
     "HTTPErrorCodes",
-    "AddressType",
-    "DatagramType",
-    "HeadersType",
-    "HeaderType",
-    "ALPNHTTPFactory",
-    "HTTP1ClientFactory",
     "HTTP1Protocol",
-    "HTTP2ClientFactory",
     "HTTP2Protocol",
-    "HTTP3ClientFactory",
     "HTTP3Protocol",
-    "HTTPOverQUICClientFactory",
     "HTTPOverQUICProtocol",
-    "HTTPOverTCPFactory",
     "HTTPOverTCPProtocol",
     "HTTPProtocol",
+    "HTTPProtocolFactory",
     "__version__",
 )

@@ -20,6 +20,7 @@ from typing import Iterator, cast
 import h2.connection
 import h2.events
 import h2.exceptions
+import h2.config
 
 from ..._typing import HeadersType
 from ...events import (
@@ -34,22 +35,27 @@ from ...events import (
 from .._protocols import HTTP2Protocol
 
 
-class HTTP2ProtocolImpl(HTTP2Protocol):
-    _connection: h2.connection.H2Connection
-    _events: deque[Event]
-    _terminated: bool = False
+class HTTP2ProtocolHyperImpl(HTTP2Protocol):
+    implementation: str = "h2"
 
-    def __init__(self, connection: h2.connection.H2Connection) -> None:
-        self._connection = connection
+    def __init__(self) -> None:
+        self._connection: h2.connection.H2Connection = h2.connection.H2Connection(
+            h2.config.H2Configuration(
+                client_side=True,
+                validate_outbound_headers=False,
+                validate_inbound_headers=False,
+            )
+        )
         self._connection.initiate_connection()
-        self._events = deque()
+        self._events: deque[Event] = deque()
+        self._terminated: bool = False
 
     @staticmethod
     def exceptions() -> tuple[type[BaseException], ...]:
         return h2.exceptions.ProtocolError, h2.exceptions.H2Error
 
     def is_available(self) -> bool:
-        # TODO: check concurrent stream limit
+        # TODO: check that we do not run out of stream IDs.
         return not self._terminated
 
     def has_expired(self) -> bool:
@@ -57,8 +63,7 @@ class HTTP2ProtocolImpl(HTTP2Protocol):
         return self._terminated
 
     def get_available_stream_id(self) -> int:
-        stream_id: int = self._connection.get_next_available_stream_id()
-        return stream_id
+        return self._connection.get_next_available_stream_id()  # type: ignore[no-any-return]
 
     def submit_close(self, error_code: int = 0) -> None:
         self._connection.close_connection(error_code)

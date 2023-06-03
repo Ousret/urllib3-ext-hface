@@ -14,7 +14,7 @@
 
 from __future__ import annotations
 
-from ._factories import ALPNHTTPFactory, HTTPOverQUICClientFactory, HTTPOverTCPFactory
+from ._factories import HTTPProtocolFactory
 from ._protocols import (
     HTTP1Protocol,
     HTTP2Protocol,
@@ -23,22 +23,13 @@ from ._protocols import (
     HTTPOverTCPProtocol,
     HTTPProtocol,
 )
-from .http1 import HTTP1ClientFactory
-from .http2 import HTTP2ClientFactory
-from .http3 import HTTP3ClientFactory
 
 __all__ = (
-    "ALPNHTTPFactory",
-    "HTTPOverQUICClientFactory",
-    "HTTPOverTCPFactory",
-    "HTTP1ClientFactory",
-    "HTTP2ClientFactory",
-    "HTTP2ClientFactory",
-    "HTTP3ClientFactory",
     "HTTP1Protocol",
     "HTTP2Protocol",
     "HTTP3Protocol",
     "HTTPOverQUICProtocol",
     "HTTPOverTCPProtocol",
     "HTTPProtocol",
+    "HTTPProtocolFactory",
 )

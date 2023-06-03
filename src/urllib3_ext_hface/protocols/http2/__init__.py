@@ -14,6 +14,6 @@
 
 from __future__ import annotations
 
-from ._factories import HTTP2ClientFactory
+from ._h2 import HTTP2ProtocolHyperImpl
 
-__all__ = ("HTTP2ClientFactory",)
+__all__ = ("HTTP2ProtocolHyperImpl",)
