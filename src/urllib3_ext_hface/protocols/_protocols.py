@@ -41,20 +41,18 @@ class BaseProtocol(metaclass=ABCMeta):
         """
         raise NotImplementedError
 
-
-class OverTCPProtocol(BaseProtocol):
-    """
-    Interface for sans-IO protocols on top TCP.
-    """
-
-    # Receiving direction
-
     @abstractmethod
     def connection_lost(self) -> None:
         """
         Called when the connection is lost or closed.
         """
         raise NotImplementedError
+
+
+class OverTCPProtocol(BaseProtocol):
+    """
+    Interface for sans-IO protocols on top TCP.
+    """
 
     @abstractmethod
     def eof_received(self) -> None:
@@ -92,15 +90,6 @@ class OverUDPProtocol(BaseProtocol):
         it should return the closes timeout from this method.
 
         :return: time in seconds or None if no timer is necessary
-        """
-        raise NotImplementedError
-
-    # Receiving direction
-
-    @abstractmethod
-    def connection_lost(self) -> None:
-        """
-        Called when the connection is lost or closed.
         """
         raise NotImplementedError
 

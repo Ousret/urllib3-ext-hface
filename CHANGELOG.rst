@@ -1,3 +1,9 @@
+v0.3.1 (2023-06-10)
+-------------------
+
+* Allow passing extra config parameter for HTTP2Protocol through the factory.
+* Remove server-side code in the primary (h11) HTTP1Protocol.
+
 v0.3.0 (2023-06-03)
 -------------------
 

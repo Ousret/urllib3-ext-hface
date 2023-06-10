@@ -38,12 +38,21 @@ from .._protocols import HTTP2Protocol
 class HTTP2ProtocolHyperImpl(HTTP2Protocol):
     implementation: str = "h2"
 
-    def __init__(self) -> None:
+    def __init__(
+        self,
+        *,
+        validate_outbound_headers: bool = False,
+        validate_inbound_headers: bool = False,
+        normalize_outbound_headers: bool = True,
+        normalize_inbound_headers: bool = True,
+    ) -> None:
         self._connection: h2.connection.H2Connection = h2.connection.H2Connection(
             h2.config.H2Configuration(
                 client_side=True,
-                validate_outbound_headers=False,
-                validate_inbound_headers=False,
+                validate_outbound_headers=validate_outbound_headers,
+                normalize_outbound_headers=normalize_outbound_headers,
+                validate_inbound_headers=validate_inbound_headers,
+                normalize_inbound_headers=normalize_inbound_headers,
             )
         )
         self._connection.initiate_connection()

@@ -41,7 +41,10 @@ class HTTPProtocolFactory(metaclass=ABCMeta):
         implementation: str | None = None,
         **kwargs: Any,
     ) -> HTTPOverQUICProtocol | HTTPOverTCPProtocol:
-        assert type_protocol != HTTPProtocol
+        """Create a new state-machine that target given protocol type."""
+        assert (
+            type_protocol != HTTPProtocol
+        ), "HTTPProtocol is ambiguous and cannot be requested in the factory."
 
         version_target: str = "".join(
             c
@@ -53,9 +56,12 @@ class HTTPProtocolFactory(metaclass=ABCMeta):
         if implementation:
             module_expr += f"._{implementation.lower()}"
 
-        http_module = importlib.import_module(
-            f".protocols.http{version_target}", "urllib3_ext_hface"
-        )
+        try:
+            http_module = importlib.import_module(module_expr, "urllib3_ext_hface")
+        except ImportError as e:
+            raise NotImplementedError(
+                f"{type_protocol} cannot be loaded. Tried to import '{module_expr}'."
+            ) from e
 
         implementations: list[
             tuple[str, type[HTTPOverQUICProtocol | HTTPOverTCPProtocol]]
@@ -66,8 +72,10 @@ class HTTPProtocolFactory(metaclass=ABCMeta):
         )
 
         if not implementations:
-            raise ImportError(
-                "Unable to instantiate a HTTPProtocol for given type target and implementation."
+            raise NotImplementedError(
+                f"{type_protocol} cannot be loaded. "
+                "No compatible implementation available. "
+                "Make sure your implementation inherit either from HTTPOverQUICProtocol or HTTPOverTCPProtocol."
             )
 
         implementation_target: type[

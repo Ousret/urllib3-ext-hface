@@ -163,13 +163,8 @@ def headers_from_response(
 class HTTP1ProtocolHyperImpl(HTTP1Protocol):
     implementation: str = "h11"
 
-    def __init__(
-        self,
-        *,
-        scheme: str = "http",
-    ) -> None:
+    def __init__(self) -> None:
         self._connection: h11.Connection = h11.Connection(h11.CLIENT)
-        self._scheme: bytes = scheme.encode()
         self._data_buffer: list[bytes] = []
         self._event_buffer: deque[Event] = deque()
         self._terminated: bool = False
@@ -310,8 +305,6 @@ class HTTP1ProtocolHyperImpl(HTTP1Protocol):
                     a(self._connection_terminated())
                 else:
                     break
-            elif isinstance(h11_event, h11.Request):
-                a(self._headers_from_h11_request(h11_event))
             elif isinstance(h11_event, (h11.Response, h11.InformationalResponse)):
                 a(self._headers_from_h11_response(h11_event))
             elif isinstance(h11_event, h11.Data):
@@ -331,10 +324,6 @@ class HTTP1ProtocolHyperImpl(HTTP1Protocol):
                 self._maybe_start_next_cycle()
             elif isinstance(h11_event, h11.ConnectionClosed):
                 a(self._connection_terminated())
-
-    def _headers_from_h11_request(self, h11_event: h11.Request) -> Event:
-        headers = headers_from_request(h11_event, scheme=self._scheme)
-        return HeadersReceived(self._current_stream_id, headers)
 
     def _headers_from_h11_response(
         self, h11_event: h11.Response | h11.InformationalResponse

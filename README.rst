@@ -3,7 +3,7 @@
 urllib3 extension: hface
 ===================================================
 
-Documentation_ | GitHub_ | PyPI_
+PyPI_
 
 This project is a fork of the akamai/hface project but highly slimmed.
 The purpose of that project is to enable basic support for HTTP/1.1, HTTP/2 and HTTP/3 in urllib3.
@@ -13,13 +13,115 @@ The purpose of that project is to enable basic support for HTTP/1.1, HTTP/2 and 
 * Layered design with well-defined APIs
 * Client-oriented only
 
-See online documentation_ for more info.
-
-.. _Documentation: https://urllib3.readthedocs.io/
-.. _GitHub: https://github.com/Ousret/urllib3-ext-hface
 .. _PyPI: https://pypi.org/project/urllib3-ext-hface
 
 .. _Sans-IO: https://sans-io.readthedocs.io/
+
+Documentation
+-------------
+
+This library is pretty straight forward and is very easy to understand.
+
+.. code-block:: python
+
+    from urllib3_ext_hface import HTTPProtocolFactory, HTTP1Protocol, HTTP2Protocol, HTTP3Protocol
+
+    protocol = HTTPProtocolFactory.new(HTTP2Protocol)
+
+    # ...
+    protocol.bytes_to_send()  # Out to your network I/O implementation
+    # ...
+    protocol.bytes_received()  # Whatever comes from your network I/O implementation
+    # ...
+    protocol.next_event()  # Output the next event in order that the state-machine generated
+
+Here ``protocol`` is either of type ``HTTPOverQUICProtocol`` or ``HTTPOverTCPProtocol``, depending
+on the foremost, you will either be on a DRAM (UDP) or STREAM (TCP) socket.
+
+Find just bellow a somewhat stupid example that can help you get started.
+
+.. code-block:: python
+
+    from urllib3_ext_hface import HTTPProtocolFactory, HTTP1Protocol, HTTP2Protocol, HTTP3Protocol
+    import ssl
+    import socket
+    import certifi
+
+    RECV_LENGTH = 4096
+
+    if __name__ == "__main__":
+
+        ctx = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
+        ctx.set_alpn_protocols(["h2"])
+
+        ctx.load_default_certs()
+        ctx.load_verify_locations(certifi.where())
+
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+        sock = ctx.wrap_socket(sock, server_hostname="httpbin.org")
+
+        sock.connect(("httpbin.org", 443))
+
+        sock.settimeout(3)
+
+        protocol = HTTPProtocolFactory.new(HTTP2Protocol)
+
+        # Start HTTP2*PRI
+        while True:
+            data_out = protocol.bytes_to_send()
+
+            if not data_out:
+                break
+
+            sock.sendall(data_out)
+
+            protocol.bytes_received(
+                sock.recv(RECV_LENGTH)
+            )
+
+        stream_id = protocol.get_available_stream_id()
+
+        protocol.submit_headers(
+            stream_id,
+            [
+                (b":authority", b"httpbin.org"),
+                (b":scheme", b"https"),
+                (b":path", b"/headers"),
+                (b":method", b"GET"),
+                (b"User-Agent", b"Awesome Sans-IO!")
+            ],
+            True
+        )
+
+        sock.sendall(
+            protocol.bytes_to_send()
+        )
+
+        while True:
+
+            try:
+                protocol.bytes_received(
+                    sock.recv(RECV_LENGTH)
+                )
+            except TimeoutError:
+                protocol.connection_lost()
+
+            event = protocol.next_event()
+
+            if hasattr(event, "data"):
+                print(event.data)
+
+            print(event)
+
+            if hasattr(event, "end_stream") and event.end_stream is True:
+                break
+
+        protocol.submit_close()
+
+        sock.sendall(protocol.bytes_to_send())
+
+        sock.close()
 
 License
 -------
