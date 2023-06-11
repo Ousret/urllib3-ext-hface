@@ -36,7 +36,7 @@ This library is pretty straight forward and is very easy to understand.
     protocol.next_event()  # Output the next event in order that the state-machine generated
 
 Here ``protocol`` is either of type ``HTTPOverQUICProtocol`` or ``HTTPOverTCPProtocol``, depending
-on the foremost, you will either be on a DRAM (UDP) or STREAM (TCP) socket.
+on the foremost, you will either be on a DGRAM (UDP) or STREAM (TCP) socket.
 
 Find just bellow a somewhat stupid example that can help you get started.
 
