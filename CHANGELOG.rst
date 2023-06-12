@@ -1,3 +1,8 @@
+v0.3.2 (2023-06-12)
+-------------------
+
+* Properly forward ConnectionTerminated event from the QUIC layer in `HTTP3ProtocolAioQuicImpl`.
+
 v0.3.1 (2023-06-10)
 -------------------
 

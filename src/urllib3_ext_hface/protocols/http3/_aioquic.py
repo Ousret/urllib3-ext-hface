@@ -167,6 +167,9 @@ class HTTP3ProtocolAioQuicImpl(HTTP3Protocol):
             for h3_event in self._http.handle_event(quic_event):
                 self._event_buffer += self._map_h3_event(h3_event)
 
+        if hasattr(self._quic, "_close_event") and self._quic._close_event is not None:
+            self._event_buffer += self._map_quic_event(self._quic._close_event)
+
     def _map_quic_event(self, quic_event: quic_events.QuicEvent) -> Iterable[Event]:
         if isinstance(quic_event, quic_events.ConnectionIdIssued):
             self._connection_ids.add(quic_event.connection_id)
