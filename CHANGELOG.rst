@@ -1,7 +1,12 @@
+v0.3.3 (2023-06-12)
+-------------------
+
+* Push the ``HandshakeCompleted`` event for the ``HTTP2ProtocolHyperImpl``.
+
 v0.3.2 (2023-06-12)
 -------------------
 
-* Properly forward ConnectionTerminated event from the QUIC layer in `HTTP3ProtocolAioQuicImpl`.
+* Properly forward ConnectionTerminated event from the QUIC layer in ``HTTP3ProtocolAioQuicImpl``.
 
 v0.3.1 (2023-06-10)
 -------------------

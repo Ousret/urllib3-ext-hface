@@ -28,6 +28,7 @@ from ...events import (
     DataReceived,
     Event,
     GoawayReceived,
+    HandshakeCompleted,
     HeadersReceived,
     StreamResetReceived,
     StreamResetSent,
@@ -127,6 +128,8 @@ class HTTP2ProtocolHyperImpl(HTTP2Protocol):
                 # Saying "connection was terminated" can be confusing,
                 # so we emit an event called "GoawayReceived".
                 yield GoawayReceived(e.last_stream_id, e.error_code)
+            elif isinstance(e, h2.events.SettingsAcknowledged):
+                yield HandshakeCompleted(alpn_protocol="h2")
 
     def connection_lost(self) -> None:
         self._connection_terminated()
