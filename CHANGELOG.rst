@@ -1,3 +1,8 @@
+v0.3.4 (2023-06-16)
+-------------------
+
+* Switch ``aioquic`` to (own) fork ``qh3`` that fixes numerous issues. The dependency chain is simpler. Pending discussions with original owner to merge.
+
 v0.3.3 (2023-06-12)
 -------------------
 

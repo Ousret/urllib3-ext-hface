@@ -19,13 +19,13 @@ from collections import deque
 from time import monotonic
 from typing import Iterable, Sequence
 
-import aioquic.h3.events as h3_events
-import aioquic.quic.events as quic_events
-from aioquic.h3.connection import H3Connection, ProtocolError
-from aioquic.h3.exceptions import H3Error
-from aioquic.quic.configuration import QuicConfiguration
-from aioquic.quic.connection import QuicConnection, QuicConnectionError
-from aioquic.tls import SessionTicket
+import qh3.h3.events as h3_events
+import qh3.quic.events as quic_events
+from qh3.h3.connection import H3Connection, ProtocolError
+from qh3.h3.exceptions import H3Error
+from qh3.quic.configuration import QuicConfiguration
+from qh3.quic.connection import QuicConnection, QuicConnectionError
+from qh3.tls import SessionTicket
 
 from ..._configuration import QuicTLSConfig
 from ..._typing import AddressType, HeadersType
