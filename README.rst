@@ -5,6 +5,8 @@ urllib3 extension: hface
 
 PyPI_
 
+⚠️ This repository is deprecated in favor of urllib3.future package. See https://github.com/jawah/urllib3.future
+
 This project is a fork of the akamai/hface project but highly slimmed.
 The purpose of that project is to enable basic support for HTTP/1.1, HTTP/2 and HTTP/3 in urllib3.
 
